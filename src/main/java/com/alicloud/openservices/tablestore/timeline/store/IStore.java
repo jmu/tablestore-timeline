@@ -1,4 +1,9 @@
-package com.alicloud.openservices.tablestore.timeline;
+package com.alicloud.openservices.tablestore.timeline.store;
+
+import com.alicloud.openservices.tablestore.timeline.ScanParameter;
+import com.alicloud.openservices.tablestore.timeline.TimelineEntry;
+import com.alicloud.openservices.tablestore.timeline.common.TimelineCallback;
+import com.alicloud.openservices.tablestore.timeline.message.IMessage;
 
 import java.io.Closeable;
 import java.util.Iterator;
@@ -31,9 +36,31 @@ public interface IStore extends Closeable {
      * @param timelineID   需要写入的Timeline的ID
      * @param message       需要写入的消息体
      * @param callback      回调函数
-     * @return              Future对象，Future和callback可以二选一
+     * @return              Future对象
      */
     Future<TimelineEntry> writeAsync(String timelineID, IMessage message, TimelineCallback<IMessage> callback);
+
+    /**
+     * 同步更新Timeline中的某条消息的属性值。
+     * @param timelineID   需要更新的Timeline的ID
+     * @param sequenceID   需要更新的消息的sequenceID
+     * @param message      需要更新的消息体
+     * @return             写入成功的消息，包括顺序ID
+     */
+    TimelineEntry update(String timelineID, Long sequenceID, IMessage message);
+
+    /**
+     * 异步更新Timeline中的某条消息的属性值。
+     * @param timelineID   需要更新的Timeline的ID
+     * @param sequenceID   需要更新的消息的sequenceID
+     * @param message      需要更新的消息体
+     * @param callback     回调函数
+     * @return             Future对象，写入成功的消息，包括顺序ID
+     */
+    Future<TimelineEntry> updateAsync(String timelineID,
+                                      Long sequenceID,
+                                      IMessage message,
+                                      TimelineCallback<IMessage> callback);
 
     /**
      * 同步读取一个Timeline实体
@@ -48,7 +75,7 @@ public interface IStore extends Closeable {
      * @param timelineID     需要读取的Timeline的ID
      * @param sequenceID     需要读取的消息的顺序ID
      * @param callback       回调函数
-     * @return               Future对象，Future和callback可以二选一
+     * @return               Future对象
      */
     Future<TimelineEntry> readAsync(String timelineID, Long sequenceID, TimelineCallback<Long> callback);
 
